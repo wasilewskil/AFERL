@@ -25,7 +25,6 @@ class TransformationFactory():
     def create_transformations(self):
         self.transformations = [
             # Feature selection
-            # TransformationVarianceThreshold(80),
             TransformationSelectPercentile(75),
             TransformationSelectPercentile(50),
             TransformationSelectPercentile(20),
@@ -54,13 +53,13 @@ class TransformationFactory():
             TransformationSin(),
             TransformationSquare(),
             TransformationTanh(),
-            # TransformationSum(),
-            # TransformationDiff(),
-            # TransformationMul(),
-            # TransformationDiv(),
+            TransformationSum(),
+            TransformationDiff(),
+            TransformationMul(),
+            TransformationDiv(),
 
             # #Other
-            #TransformationAggregation(),       
+            TransformationAggregation(),       
         ]
         random.shuffle(self.transformations)
 
@@ -214,20 +213,6 @@ class TransformationSelectPercentile(TransformationFeatureSelection):
 
     def _get_selector(self):
         return SelectPercentile(f_classif, self.percentile)
-
-class TransformationVarianceThreshold(TransformationFeatureSelection):
-    def __init__(self, treshold, indexes_duplicates = None, indexes_select = None):
-        super().__init__(indexes_duplicates = None, indexes_select = None)
-        self.name = 'vtr' + str(treshold) + '_fs'
-        self.treshold = treshold / 100
-
-    def _copy(self):
-        transformation = TransformationSelectPercentile(self.treshold, self.indexes_duplicates, self.indexes_select)
-        self.indexes_select = None
-        return transformation
-
-    def _get_selector(self):
-        return VarianceThreshold(self.treshold * (1 - self.treshold))
 
 class TransformationLogarithm(TransformationBase):
     def __init__(self, shift = None):
