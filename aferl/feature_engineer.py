@@ -10,6 +10,7 @@ import time
 import json
 import codecs
 import copy
+import os
 
 class FeatureEngineer:
     def __init__(self, estimator, max_iter=100, learning_rate=0.1, discount_factor=0.99, epsilon=0.15, h_max = 8, cv=5, w = None, datetime_format = None, w_init = np.ones(14), random_state = 123, scoring = 'f1_micro', transformations = None):
@@ -31,7 +32,7 @@ class FeatureEngineer:
         else:
             self.w = copy.deepcopy(w)
 
-    def fit(self, X, y, data_info=None, missing_value_mark=None, path = None, name = None):                
+    def fit(self, X, y, data_info=None, missing_value_mark=None):                
         if type(self.max_iter) is not list:
             self.max_iter = [self.max_iter]
         
@@ -44,8 +45,6 @@ class FeatureEngineer:
             self.graph = TransformationGraph(dataset, self.transformation_factory, self.estimator, self.cv, self.max_iter[i], self.h_max, self.w, self.random_state, self.scoring)    
 
             self._fit(self.max_iter[i])
-            if path is not None and name is not None:
-                self._save(path, name, self.max_iter[i])   
         return self.w     
     
     def transform(self, X, y, missing_value_mark=None):
@@ -55,43 +54,20 @@ class FeatureEngineer:
             dataset, _ = transformation.transform(dataset)
         return dataset.X
 
-    def save_transformation_graph(self, path):
-        dot = Digraph(filename=path, format='pdf')
+    def save_transformation_graph(self, path, filename):
+        dot = Digraph(filename=os.path.join(path, filename), format='pdf')
         for node in self.graph.nodes:
             dot.node(str(node.id), label=(str(node.id) + ": " + "{0:.3f}".format(node.score)))
         for edge in self.graph.edges:
             dot.edge(str(edge.start_node.id), str(edge.end_node.id), label=edge.transformation.name[0:7] + " - " + edge.exp_type)
         dot.render()
 
-    def save_weights(self, path):
-        if path.endswith('/') == False:
-            path = path + '/'
+    def save_weights(self, path, filename):
         w = self.w.copy()
         for key in w.keys():
             w[key] = w[key].tolist()
         
-        json.dump(w, codecs.open(path, 'w', encoding='utf-8'), separators=(',', ':'), sort_keys=True, indent=4)
-
-    def _save(self, path, name, budget):
-        if path.endswith('/') == False:
-            path = path + '/'
-        w = self.w.copy()
-        for key in w.keys():
-            w[key] = w[key].tolist()
-        node = self.graph.get_best_node()
-        info = {}
-        info.update({'weights': w})         
-        info.update({'best_node_id': node.id})  
-        info.update({'best_node_depth': node.depth})  
-        info.update({'max_score': node.score})
-        info.update({'nodes': len(self.graph.nodes)})  
-        info.update({'learning_rate': self.learning_rate})  
-        info.update({'discount_factor': self.discount_factor})
-        info.update({'epsilon': self.epsilon}) 
-        info.update({'h_max': self.h_max})    
-
-        json.dump(info, codecs.open(path + 'info_' + str(budget) + "_" + name + ".json", 'w', encoding='utf-8'), separators=(',', ':'), sort_keys=True, indent=4)
-        self.save_transformation_graph(path + 'graph_' + str(budget) + "_" + name)
+        json.dump(w, codecs.open(os.path.join(path, filename + '.json'), 'w', encoding='utf-8'), separators=(',', ':'), sort_keys=True, indent=4)
     
     def _fit(self, max_iter):
         for i in range(0, max_iter):
@@ -132,9 +108,7 @@ class FeatureEngineer:
 
             if reward is not None:
                 Q = self._get_Q_value(node, transformation)
-                return (node, transformation, Q, reward)
-
-       
+                return (node, transformation, Q, reward)       
 
     def _take_policy_step(self):
         proposals = self._get_all_Q_values()

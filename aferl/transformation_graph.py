@@ -2,7 +2,6 @@ from sklearn.model_selection import cross_val_score, StratifiedKFold
 from operator import attrgetter
 import numpy as np
 import operator
-from aferl.utils import diff, RunWithTimeout
 import time
 
 class TransformationGraph:
@@ -75,7 +74,6 @@ class TransformationGraph:
 
     def _transform_dataset_if_possible(self, node, transformation):
         try:
-            print(str(node.id) + " " + transformation.name)
             if transformation not in node.get_possible_transformations():
                 return False, False
 
@@ -90,8 +88,6 @@ class TransformationGraph:
 
             return new_dataset, tc
         except Exception as e:
-            print(str(node.id) + " " + transformation.name)
-            print(e)
             return None, None
 
 class Node:
@@ -158,12 +154,10 @@ class Node:
 
     def _evaluate_score(self):
         try:
-            print("Calculating score...")
             cv = StratifiedKFold(n_splits=self._graph.cv, random_state=self._graph.random_state) 
             cv_scores = cross_val_score(self._graph.estimator, self.dataset.X, self.dataset.y, cv=cv, error_score=0, scoring=self._graph.scoring, n_jobs = -1)
             self.score = cv_scores.mean()
         except Exception as e:
-            print(e)
             self.score = 0
 
     def _build_possible_transformations(self):

@@ -6,7 +6,7 @@ import time
 import warnings
 
 from aferl.dataset import Dataset
-from aferl.utils import can_convert_to_float, RunWithTimeout
+from aferl.utils import can_convert_to_float
 from math import log, sqrt, sin, cos, sinh, cosh, tan, tanh
 from statistics import median
 from sklearn.feature_selection import SelectKBest, SelectFpr, SelectFdr, SelectFwe, SelectPercentile, VarianceThreshold, f_classif
@@ -62,7 +62,8 @@ class TransformationFactory():
             # #Other
             TransformationAggregation(),       
         ]
-        self.transformations = [t for t in self.transformations if t.name in self.allowed_transformations]
+        if self.allowed_transformations is not None:
+            self.transformations = [t for t in self.transformations if t.name in self.allowed_transformations]
         random.shuffle(self.transformations)
 
 
@@ -127,10 +128,8 @@ class TransformationBase():
 
     def transform(self, dataset):
         if self.is_feature_selection() == False:
-            #job = RunWithTimeout(self._transform, dataset.copy())
             res = self._transform(dataset.copy())
             if res is None:
-                print("Probalby killed or not")
                 return None, None
             if self.is_copied_instance == True and self.indexes_duplicates is not None:
                 res.remove_columns(self.indexes_duplicates)
