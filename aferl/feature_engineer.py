@@ -12,7 +12,7 @@ import codecs
 import copy
 
 class FeatureEngineer:
-    def __init__(self, estimator, max_iter=100, learning_rate=0.1, discount_factor=0.99, epsilon=0.15, h_max = 8, cv=5, w = None, datetime_format = None, w_init = np.ones(14), random_state = 123, scoring = 'f1_micro'):
+    def __init__(self, estimator, max_iter=100, learning_rate=0.1, discount_factor=0.99, epsilon=0.15, h_max = 8, cv=5, w = None, datetime_format = None, w_init = np.ones(14), random_state = 123, scoring = 'f1_micro', transformations = None):
         self.max_iter = max_iter
         self.estimator = estimator
         self.cv = cv   
@@ -23,7 +23,7 @@ class FeatureEngineer:
         self.datetime_format = datetime_format
         self.random_state = random_state
         self.scoring = scoring
-        self.transformation_factory = TransformationFactory()
+        self.transformation_factory = TransformationFactory(transformations)
         if w is None:
             self.w = {} 
             for transformation in self.transformation_factory.transformations:
