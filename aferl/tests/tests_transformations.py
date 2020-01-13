@@ -342,45 +342,6 @@ class TestTransformations(unittest.TestCase):
         self.assertNotEqual(transformation, tc)
         self.assertTrue(transformation.imputer is None)
         self.assertTrue(tc.imputer is not None)
-        
-    def test_variance_treshhold_1(self):
-        X = [[-1, 1], [-3, 1], [1, 1]]
-        y = [1, 2, 3]
-        data_info = ['numeric', 'numeric']
-        dataset = Dataset(X, y, data_info)
-
-        transformation = t.TransformationVarianceThreshold(1)
-        d, tc = transformation.transform(dataset)
-        expected_X = np.array([[-1], [-3], [1]])
-        np.testing.assert_equal(d.X, expected_X) 
-        np.testing.assert_equal(d.data_info, ['numeric']) 
-
-        d, _ = tc.transform(dataset)
-        expected_X = np.array([[-1], [-3], [1]])
-        np.testing.assert_equal(d.X, expected_X) 
-        np.testing.assert_equal(d.data_info, ['numeric']) 
-
-        self.assertNotEqual(transformation, tc)
-        
-
-    def test_variance_treshhold_60(self):
-        X = [[-1, 1, 1, 1, -1], [-3, 1, 2, 1, -3], [1, 2, 3, 1, 1]]
-        y = [1, 2, 3]
-        data_info = ['numeric', 'numeric', 'numeric', 'numeric', 'numeric']
-        dataset = Dataset(X, y, data_info)
-
-        transformation = t.TransformationVarianceThreshold(60)
-        d, tc = transformation.transform(dataset)
-        expected_X = np.array([[-1, 1], [-3, 2], [1, 3]])
-        np.testing.assert_equal(d.X, expected_X) 
-        np.testing.assert_equal(d.data_info, ['numeric', 'numeric']) 
-
-        d, _ = tc.transform(dataset)
-        expected_X = np.array([[-1, 1], [-3, 2], [1, 3]])
-        np.testing.assert_equal(d.X, expected_X) 
-        np.testing.assert_equal(d.data_info, ['numeric', 'numeric']) 
-
-        self.assertNotEqual(transformation, tc)
 
     def test_select_percentile(self):
         X = [[-1, 1, 1, 1, -1], [-3, 1, 2, 1, -3], [1, 2, 3, 1, 1]]
