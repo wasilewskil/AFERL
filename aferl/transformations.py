@@ -18,8 +18,9 @@ from sklearn.impute import IterativeImputer, KNNImputer, SimpleImputer
 warnings.simplefilter("ignore")
 
 class TransformationFactory():
-    def __init__(self):
+    def __init__(self, allowed_transformations = None):
         self.transformations = []
+        self.allowed_transformations = allowed_transformations
         self.create_transformations()
 
     def create_transformations(self):
@@ -61,6 +62,7 @@ class TransformationFactory():
             # #Other
             TransformationAggregation(),       
         ]
+        self.transformations = [t for t in self.transformations if t.name in self.allowed_transformations]
         random.shuffle(self.transformations)
 
 
