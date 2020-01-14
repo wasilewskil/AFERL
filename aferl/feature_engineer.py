@@ -71,7 +71,7 @@ class FeatureEngineer:
     
     def _fit(self, max_iter):
         for i in range(0, max_iter):
-            print("Iteration: " + str(i+1) + "/" + str(max_iter) + ":")
+            print("Iteration: " + str(i+1) + "/" + str(max_iter))
             if self._take_step() == False:
                 break
 
